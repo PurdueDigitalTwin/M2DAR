@@ -25,7 +25,7 @@ selection processes to refine the preliminary results from the action recognitio
 
 ## Installation
 
-This project is based on the [PySlowFast](https://github.com/facebookresearch/SlowFast) codebase (Many thanks!). Please
+This project is based on the [PySlowFast](https://github.com/facebookresearch/SlowFast) codebase. Please
 follow the instructions [there](https://github.com/facebookresearch/SlowFast/blob/main/INSTALL.md) to set up the
 environment. Additionally, install the decord library by running the following command:
 
@@ -51,7 +51,7 @@ python tools/misc/create_anno.py
    command:
 
 ```bash
-python tools/misc/relocate_video.py `annotation_A1.csv`
+python tools/misc/relocate_video.py
 ```
 
 4. Process the annotation file to fix errors in the original annotation file such as action end time < start time or
@@ -67,6 +67,24 @@ python tools/misc/process_anno.py
 mkdir data/preprocessed/A1_clips
 parallel -j 4 <data/A1_cut.sh
 ```
+
+6. Split the `processed_annotation_A1.csv` into train and val subsets using the following commands:
+
+```bash
+python tools/misc/split_anno.py
+```
+
+7. Make annotation files for training on the whole A1 set:
+
+```bash
+$ mkdir data/annotations/splits/full
+$ cat data/annotations/splits/splits_1/train.csv data/annotations/splits/splits_1/val.csv >data/annotations/splits/full/train.csv
+$ cp data/annotations/splits/splits_1/val.csv data/annotations/splits/full/
+```
+
+8. Download the MViTv2-S pretrained model
+   from [here](https://drive.google.com/file/d/1UwwCAS1fgS0dzxgiYxF_rITXwC_8Xx8r/view?usp=sharing) and put it
+   as `MViTv2_S_16x4_pretrained.pyth` under `data/ckpts`.
 
 ## Train
 
