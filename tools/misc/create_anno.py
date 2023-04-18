@@ -7,8 +7,10 @@ from pathlib import Path
 parser = argparse.ArgumentParser()
 parser.add_argument("--original_path",
                     default="./data/original/A1")
-parser.add_argument("--out_anno_file",
-                    default="./annotations/annotation_A1.csv")
+parser.add_argument("--out_dir",
+                    default="./data/annotations")
+parser.add_argument("--out_anno_fname",
+                    default="annotation_A1.csv")
 
 fields = ["User ID", "FileName", "Camera View", "Activity Type", "Start Time", "End Time", "Label", "Appearance Block"]
 
@@ -28,6 +30,9 @@ def process_label(label: str):
 
 def main(args):
     original_path = Path(args.original_path)
+    out_dir = Path(args.out_dir)
+    if not out_dir.exists():
+        out_dir.mkdir(parents=True)
     all_action_annotations = []
     for user_id_path in sorted(list(original_path.iterdir())):
         if not user_id_path.is_dir():
@@ -57,7 +62,7 @@ def main(args):
                             [uid5, filename, camera_view, activity_type, process_time(start_time),
                              process_time(end_time), label, appearance_block])
 
-    with open(args.out_anno_file, 'w') as csvfile:
+    with open(str(out_dir / args.out_anno_fname), 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(fields)
         csvwriter.writerows(all_action_annotations)
