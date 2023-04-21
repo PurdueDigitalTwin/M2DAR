@@ -18,7 +18,7 @@ parser.add_argument("--pred_pickle_path",
 parser.add_argument("--vid_csv",
                     default="data/annotations/A2_video_ids.csv")
 parser.add_argument("--threshold_path",
-                    default="data/thresholds")
+                    default="configs")
 parser.add_argument("--output_path",
                     default="data/inferences")
 parser.add_argument("--num_classes", default=16, type=int)
