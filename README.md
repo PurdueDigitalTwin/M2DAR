@@ -25,7 +25,8 @@ selection processes to refine the preliminary results from the action recognitio
 
 ## Installation
 
-This project is based on the [PySlowFast](https://github.com/facebookresearch/SlowFast) codebase. Please
+This project is based on [PySlowFast](https://github.com/facebookresearch/SlowFast)
+and [AiCityAction](https://github.com/JunweiLiang/aicity_action) codebases. Please
 follow the instructions [there](https://github.com/facebookresearch/SlowFast/blob/main/INSTALL.md) to set up the
 environment. Additionally, install the decord library by running the following command:
 
@@ -44,21 +45,21 @@ pip install decord
 2. Create an annotation file `annotation_A1.csv` by running the following command:
 
 ```bash
-python tools/misc/create_anno.py
+python tools/data_converter/create_anno.py
 ```
 
 3. Move all videos in both the A1 and A2 subsets in a single folder `data/preprocessed/A1_A2_videos` using the following
    command:
 
 ```bash
-python tools/misc/relocate_video.py
+python tools/data_converter/relocate_video.py
 ```
 
 4. Process the annotation file to fix errors in the original annotation file such as action end time < start time or
    wrong action labels by running the following command:
 
 ```bash
-python tools/misc/process_anno.py
+python tools/data_converter/process_anno.py
 ```
 
 5. Cut the videos into clips using the following commands:
@@ -71,7 +72,7 @@ parallel -j 4 <data/A1_cut.sh
 6. Split the `processed_annotation_A1.csv` into train and val subsets using the following commands:
 
 ```bash
-python tools/misc/split_anno.py
+python tools/data_converter/split_anno.py
 ```
 
 7. Make annotation files for training on the whole A1 set:
@@ -80,19 +81,59 @@ python tools/misc/split_anno.py
 $ mkdir data/annotations/splits/full
 $ cat data/annotations/splits/splits_1/train.csv data/annotations/splits/splits_1/val.csv >data/annotations/splits/full/train.csv
 $ cp data/annotations/splits/splits_1/val.csv data/annotations/splits/full/
+
 ```
 
 8. Download the MViTv2-S pretrained model
    from [here](https://drive.google.com/file/d/1UwwCAS1fgS0dzxgiYxF_rITXwC_8Xx8r/view?usp=sharing) and put it
    as `MViTv2_S_16x4_pretrained.pyth` under `data/ckpts`.
 
-## Train
+## Training
 
-[TODO]
+To train the model, set the working directory to be the **project root path**, then run:
 
-## Evaluation
+```bash
+export PYTHONPATH=$PWD/:$PYTHONPATH
+python tools/run_net.py --cfg configs/MVITV2_S_16x4_448.yaml
 
-[TODO]
+```
+
+## Inference
+
+1.Copy the `video_ids.csv` from the original dataset to the annotation directory:
+
+```bash
+cp data/original/A2/video_ids.csv data/annotations
+mv data/annotations/video_ids.csv data/annotations/A2_video_ids.csv
+
+```
+
+2. Create the video list using the following:
+
+```bash
+python tools/data_converter/create_test_video_lst.py
+```
+
+3. Download the backbone model checkpoint
+   from [here](https://drive.google.com/file/d/1Il1o9NMR6x8Cw4Q6B3AItZzvLFT_gtpE/view?usp=sharing), which is the one
+   that achieved an overlap score of 0.5921 on the A2 test set and put it
+   at `data/ckpts/MViTv2_S_16x4_aicity_200ep.pyth`.
+
+4. Run the DAR module using the following commands, which will generate preliminary results stored at `data/runs/A2` in
+   pickle format:
+
+```bash
+python tools/inference/driver_action_rec.py
+
+```
+
+5. Run the Election algorithm to refine the preliminary findings from the DAR module using the following commands:
+
+```bash
+python tools/inference/election.py
+```
+
+The submission file is at `data/inferences/submit.txt`, which achieves an overlap score of 0.5921 on the A2 test set.
 
 ## Citing M<sup>2</sup>DAR
 
@@ -108,7 +149,7 @@ If you use this code for your research, please cite our paper:
 }
 ```
 
-## Acknowledgement
+## Acknowledgements
 
-This repo is based on [PySlowFast](https://github.com/facebookresearch/SlowFast)
+This repo is based on the [PySlowFast](https://github.com/facebookresearch/SlowFast)
 and [AiCityAction](https://github.com/JunweiLiang/aicity_action) repos. Many thanks!
