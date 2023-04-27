@@ -1,4 +1,4 @@
-## M<sup>2</sup>DAR: : Multi-View Multi-Scale Driver Action Recognition with Vision Transformer
+## M<sup>2</sup>DAR: Multi-View Multi-Scale Driver Action Recognition with Vision Transformer
 
 Yunsheng Ma,
 Liangqi Yuan,
